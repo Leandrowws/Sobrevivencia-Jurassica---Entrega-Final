@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Executar Jogo",
+      "request": "launch",
+      "mainClass": "Jogo.App",
+      "console": "integratedTerminal"
+    }
+  ]
+}
