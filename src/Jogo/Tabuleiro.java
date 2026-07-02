@@ -1,8 +1,11 @@
 package Jogo;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-
 import Personagens.Compsognato;
 import Personagens.Dinossauro;
 import Personagens.Troodonte;
@@ -56,9 +59,9 @@ public class Tabuleiro {
         return mapa[linha][coluna].getPersonagem();
     }
 
-    public void posicionarJogador(Jogador j) {
-        j.setPosicao(0, 0);
-        mapa[0][0].setPersonagem(j);
+    public void posicionarJogador(Jogador j, int linha, int coluna) {
+        j.setPosicao(linha, coluna);
+        mapa[linha][coluna].setPersonagem(j);
     }
 
     public void adicionarDinossauro(Dinossauro d, int l, int c) {
@@ -140,61 +143,6 @@ public class Tabuleiro {
         }
     }
 
-    private int[] posicaoLivreAleatoria() {
-        int linha;
-        int coluna;
-        do {
-            linha = random.nextInt(mapa.length);
-            coluna = random.nextInt(mapa.length);
-        } while (mapa[linha][coluna].isLivre() == false);
-        return new int[] { linha, coluna };
-    }
-
-    public void gerarParedes() {
-        int porcentagem = random.nextInt(16) + 5;
-        int quantidade = (mapa.length * mapa.length * porcentagem) / 100;
-        for (int i = 0; i < quantidade; i++) {
-            int pos[] = posicaoLivreAleatoria();
-            adicionarParede(pos[0], pos[1]);
-        }
-    }
-
-    private void colocarCaixaPosAleatoria(Caixa caixa) {
-        int[] pos = posicaoLivreAleatoria();
-        adicionarCaixa(caixa, pos[0], pos[1]);
-    }
-
-    public void gerarCaixas() {
-        colocarCaixaPosAleatoria(new Caixa(TipoCaixa.KIT_MEDICO));
-        colocarCaixaPosAleatoria(new Caixa(TipoCaixa.BASTAO_ELETRICO));
-        colocarCaixaPosAleatoria(new Caixa(TipoCaixa.DARDO_TRANQUILIZANTE));
-        colocarCaixaPosAleatoria(new Caixa(TipoCaixa.DARDO_TRANQUILIZANTE));
-        colocarCaixaPosAleatoria(new Caixa(TipoCaixa.COMPSOGNATO_SURPRESA));
-    }
-
-    public void gerarDinossauros() {
-        adicionarDinossauro(new TRex(), mapa.length - 1, mapa.length - 1);
-        for (int i = 0; i < 2; i++) {
-            int[] pos = posicaoLivreAleatoria();
-            adicionarDinossauro(new Compsognato(), pos[0], pos[1]);
-        }
-        for (int i = 0; i < 2; i++) {
-            int[] pos = posicaoLivreAleatoria();
-            adicionarDinossauro(new Velociraptor(), pos[0], pos[1]);
-        }
-        for (int i = 0; i < 5; i++) {
-            int[] pos = posicaoLivreAleatoria();
-            adicionarDinossauro(new Troodonte(), pos[0], pos[1]);
-        }
-    }
-
-    public void gerarMapa() {
-        gerarDinossauros();
-        gerarParedes();
-        gerarCaixas();
-
-    }
-
     public void reposicionarJogador(Personagem p, int linha, int coluna) {
         mapa[p.getLinha()][p.getColuna()].setPersonagem(null);
         p.setPosicao(linha, coluna);
@@ -255,6 +203,54 @@ public class Tabuleiro {
             }
         }
         return null;
+    }
+
+    public void carregarMapa(File arquivo, Jogador jogador) throws IOException {
+        BufferedReader leitor = new BufferedReader(new FileReader(arquivo));
+
+        for (int linha = 0; linha < mapa.length; linha++) {
+
+            String texto = leitor.readLine();
+
+            for (int coluna = 0; coluna < mapa.length; coluna++) {
+
+                char c = texto.charAt(coluna);
+
+                switch (c) {
+                    case '#':
+                        adicionarParede(linha, coluna);
+                        break;
+                    case 'J':
+                        posicionarJogador(jogador, linha, coluna);
+                        break;
+                    case 'R':
+                        adicionarDinossauro(new TRex(), linha, coluna);
+                        break;
+                    case 'V':
+                        adicionarDinossauro(new Velociraptor(), linha, coluna);
+                        break;
+                    case 'T':
+                        adicionarDinossauro(new Troodonte(), linha, coluna);
+                        break;
+                    case 'C':
+                        adicionarDinossauro(new Compsognato(), linha, coluna);
+                        break;
+                    case 'K':
+                        adicionarCaixa(new Caixa(TipoCaixa.KIT_MEDICO), linha, coluna);
+                        break;
+                    case 'B':
+                        adicionarCaixa(new Caixa(TipoCaixa.BASTAO_ELETRICO), linha, coluna);
+                        break;
+                    case 'D':
+                        adicionarCaixa(new Caixa(TipoCaixa.DARDO_TRANQUILIZANTE), linha, coluna);
+                        break;
+                    case 'S':
+                        adicionarCaixa(new Caixa(TipoCaixa.COMPSOGNATO_SURPRESA), linha, coluna);
+                        break;
+                }
+            }
+        }
+        leitor.close();
     }
 
 }

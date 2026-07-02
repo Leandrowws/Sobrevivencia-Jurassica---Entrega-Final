@@ -1,5 +1,8 @@
 package Jogo;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 import Personagens.Dinossauro;
 import Personagens.Jogador;
@@ -11,6 +14,7 @@ public class Jogo {
     private long semente;
     private Scanner teclado;
     private Combate combate;
+    private File mapaAtual;
 
     public Jogo() {
         teclado = new Scanner(System.in);
@@ -30,8 +34,15 @@ public class Jogo {
         jogador = new Jogador(percepcao);
         tabuleiro = new Tabuleiro(10, semente);
         combate = new Combate(semente, teclado);
-        tabuleiro.posicionarJogador(jogador);
-        tabuleiro.gerarMapa();
+        Random random = new Random();
+        int numero = random.nextInt(5) + 1;
+        try {
+            mapaAtual = new File("src/Mapas/mapa" + numero + ".txt");
+            tabuleiro.carregarMapa(mapaAtual, jogador);
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar mapa.");
+            e.printStackTrace();
+        }
     }
 
     private int escolherDificuldade() {
@@ -65,8 +76,12 @@ public class Jogo {
         jogador = new Jogador(percepcao);
         tabuleiro = new Tabuleiro(10, semente);
         combate = new Combate(semente, teclado);
-        tabuleiro.posicionarJogador(jogador);
-        tabuleiro.gerarMapa();
+        try {
+            tabuleiro.carregarMapa(mapaAtual, jogador);
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar o mapa.");
+            e.printStackTrace();
+        }
     }
 
     public boolean menuPosJogo() {

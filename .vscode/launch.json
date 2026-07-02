@@ -6,7 +6,8 @@
       "name": "Executar Jogo",
       "request": "launch",
       "mainClass": "Jogo.App",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }
