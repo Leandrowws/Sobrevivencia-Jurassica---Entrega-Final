@@ -23,8 +23,11 @@ public abstract class Personagem {
         }
     }
 
-    public void recuperarVida() {
-        vida++;
+    public void recuperarVida(int cura) {
+        vida += cura;
+        if (vida > 5) {
+            vida = 5;
+        }
     }
 
     public void setPosicao(int l, int c) {

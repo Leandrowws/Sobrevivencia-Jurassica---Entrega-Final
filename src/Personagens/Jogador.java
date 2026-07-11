@@ -94,16 +94,12 @@ public class Jogador extends Personagem {
             return false;
         }
 
-        if (getVida() >= 5) {
+        if (getVida() == 5) {
             System.out.println("Sua vida já está cheia!");
             return false;
         }
 
-        recuperarVida();
-
-        if (getVida() < 5)
-            recuperarVida();
-
+        kit.usar(this);
         inventario.remove(kit);
 
         System.out.println("Vida recuperada!");
