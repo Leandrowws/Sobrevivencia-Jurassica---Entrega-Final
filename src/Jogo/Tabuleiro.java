@@ -6,11 +6,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import Caixas.Caixa;
+import Caixas.CaixaCompsognato;
+import Caixas.CaixaItem;
+import Itens.ArmaDardos;
+import Itens.BastaoEletrico;
+import Itens.KitMedico;
 import Personagens.Compsognato;
 import Personagens.Dinossauro;
 import Personagens.Troodonte;
 import Personagens.Velociraptor;
 import Personagens.Jogador;
+import Personagens.InimigoMovel;
 import Personagens.Personagem;
 import Personagens.TRex;
 
@@ -197,9 +204,11 @@ public class Tabuleiro {
 
     public Dinossauro moverTodosDinossauros() {
         for (Dinossauro d : dinossauros) {
-            Jogador jogadorEncontrado = d.moverDinossauro(this);
-            if (jogadorEncontrado != null) {
-                return d;
+            if (d instanceof InimigoMovel) {
+                Jogador jogadorEncontrado = ((InimigoMovel) d).mover(this);
+                if (jogadorEncontrado != null) {
+                    return d;
+                }
             }
         }
         return null;
@@ -236,16 +245,16 @@ public class Tabuleiro {
                         adicionarDinossauro(new Compsognato(), linha, coluna);
                         break;
                     case 'K':
-                        adicionarCaixa(new Caixa(TipoCaixa.KIT_MEDICO), linha, coluna);
+                        adicionarCaixa(new CaixaItem(new KitMedico()), linha, coluna);
                         break;
                     case 'B':
-                        adicionarCaixa(new Caixa(TipoCaixa.BASTAO_ELETRICO), linha, coluna);
+                        adicionarCaixa(new CaixaItem(new BastaoEletrico()), linha, coluna);
                         break;
                     case 'D':
-                        adicionarCaixa(new Caixa(TipoCaixa.DARDO_TRANQUILIZANTE), linha, coluna);
+                        adicionarCaixa(new CaixaItem(new ArmaDardos()), linha, coluna);
                         break;
                     case 'S':
-                        adicionarCaixa(new Caixa(TipoCaixa.COMPSOGNATO_SURPRESA), linha, coluna);
+                        adicionarCaixa(new CaixaCompsognato(), linha, coluna);
                         break;
                 }
             }

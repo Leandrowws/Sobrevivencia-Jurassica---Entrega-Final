@@ -1,7 +1,5 @@
 package Personagens;
 
-import Jogo.Tabuleiro;
-
 public abstract class Dinossauro extends Personagem {
 
     private String especie;
@@ -22,7 +20,6 @@ public abstract class Dinossauro extends Personagem {
 
     public void receberBastaoEletrico(int dano) {
         perderVida(dano);
-
     }
 
     public boolean emboscaJogador(boolean jogadorEncontrou) {
@@ -35,11 +32,7 @@ public abstract class Dinossauro extends Personagem {
 
     public void receberDardo(int dano) {
         perderVida(dano);
-        System.out.println();
-        System.out.println("O dardo atingiu o alvo!");
     }
-
-    public abstract Jogador moverDinossauro(Tabuleiro tabuleiro);
 
     public abstract void morder(Jogador jogador);
 }

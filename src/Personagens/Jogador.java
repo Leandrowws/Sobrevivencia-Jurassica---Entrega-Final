@@ -1,27 +1,39 @@
 package Personagens;
 
-import Jogo.Caixa;
+import Itens.Punhos;
+import Itens.Arma;
+import java.util.ArrayList;
+import Itens.ArmaDardos;
+import Itens.BastaoEletrico;
+import Itens.Item;
+import Itens.KitMedico;
 import Jogo.Posicao;
 import Jogo.Tabuleiro;
-import Jogo.TipoCaixa;
+import Caixas.Caixa;
 
 public class Jogador extends Personagem {
 
     private int percepcao;
-    private boolean possuiBastao;
-    private boolean possuiKitMedico;
-    private boolean possuiArmaDardos;
+    private ArrayList<Item> inventario;
     private int linhaAnterior;
     private int colunaAnterior;
-    private int municaoDardos;
 
     public Jogador(int percepcao) {
         super(5);
         this.percepcao = percepcao;
-        possuiBastao = false;
-        possuiKitMedico = false;
-        possuiArmaDardos = false;
-        municaoDardos = 0;
+        inventario = new ArrayList<>();
+    }
+
+    private <T extends Item> T buscarItem(Class<T> tipo) {
+
+        for (Item item : inventario) {
+
+            if (tipo.isInstance(item)) {
+                return tipo.cast(item);
+            }
+        }
+
+        return null;
     }
 
     public int getLinhaAnterior() {
@@ -46,66 +58,55 @@ public class Jogador extends Personagem {
     }
 
     public boolean possuiKitMedico() {
-        return possuiKitMedico;
+        return buscarItem(KitMedico.class) != null;
     }
 
     public boolean possuiBastao() {
-        return possuiBastao;
+        return buscarItem(BastaoEletrico.class) != null;
     }
 
     public boolean possuiArmaDardos() {
-        return possuiArmaDardos;
+        return buscarItem(ArmaDardos.class) != null;
     }
 
     public int getMunicaoDardos() {
-        return municaoDardos;
+
+        ArmaDardos arma = buscarItem(ArmaDardos.class);
+
+        if (arma == null)
+            return 0;
+
+        return arma.getMunicao();
+
     }
 
-    public void receberKitMedico() {
-        possuiKitMedico = true;
-    }
-
-    public void receberBastao() {
-        possuiBastao = true;
-    }
-
-    public void receberArmaDardos() {
-        if (!possuiArmaDardos) {
-            possuiArmaDardos = true;
-            System.out.println();
-            System.out.println("Você encontrou uma arma de dardos e duas munições (use com cuidado)!");
-        } else {
-            System.out.println();
-            System.out.println("Você recebeu mais duas munições para a arma de dardos!");
-        }
-        adicionarMunicao();
-    }
-
-    public void adicionarMunicao() {
-        municaoDardos += 2;
+    public void adicionarItem(Item item) {
+        inventario.add(item);
+        System.out.println("Voce encontrou um(a) " + item.getNome());
     }
 
     public boolean usarKitMedico() {
 
-        if (!possuiKitMedico) {
-            System.out.println();
-            System.out.println("Voce nao possui kit medico!");
+        KitMedico kit = buscarItem(KitMedico.class);
+
+        if (kit == null) {
+            System.out.println("Você não possui kit médico!");
             return false;
         }
 
         if (getVida() >= 5) {
-            System.out.println();
-            System.out.println("Sua vida ja esta cheia!");
+            System.out.println("Sua vida já está cheia!");
             return false;
         }
 
         recuperarVida();
+
         if (getVida() < 5)
             recuperarVida();
 
-        possuiKitMedico = false;
-        System.out.println();
-        System.out.println("Voce recuperou vida!");
+        inventario.remove(kit);
+
+        System.out.println("Vida recuperada!");
 
         return true;
     }
@@ -121,42 +122,22 @@ public class Jogador extends Personagem {
     }
 
     public boolean atacarCorpoACorpo(Dinossauro alvo, int dado) {
-        if (!possuiBastao()) {
-            if (dado <= 2) {
-                System.out.println("Você errou o ataque!");
-            } else if (dado <= 5) {
-                if (alvo.receberAtaqueBasico(1))
-                    System.out.println("Você causou 1 de dano!");
-            } else {
-                if (alvo.receberAtaqueBasico(2))
-                    System.out.println("Acerto crítico! Causou 2 de dano!");
-            }
+        Arma arma = buscarItem(BastaoEletrico.class);
+        if (arma != null) {
+            return arma.atacar(alvo, dado);
         } else {
-            if (dado <= 1) {
-                System.out.println("Você errou!");
-            } else if (dado <= 4) {
-                System.out.println("O bastão acertou! Causou 1 de dano!");
-                alvo.receberBastaoEletrico(1);
-            } else {
-                System.out.println("O bastão acertou de forma crítica! Causou 2 de dano!");
-                alvo.receberBastaoEletrico(2);
-            }
+            arma = new Punhos();
+            return arma.atacar(alvo, dado);
         }
-        return true;
     }
 
     public boolean atirarDardo(Dinossauro alvo) {
-        if (!possuiArmaDardos()) {
-            System.out.println("Você não possui uma arma de dardos!");
+        ArmaDardos arma = buscarItem(ArmaDardos.class);
+        if (arma == null) {
+            System.out.println("Você não possui arma.");
             return false;
         }
-        if (municaoDardos <= 0) {
-            System.out.println("Sem munição!");
-            return false;
-        }
-        municaoDardos--;
-        alvo.receberDardo(2);
-        return true;
+        return arma.atacar(alvo, 0);
     }
 
     public Dinossauro mover(Tabuleiro tabuleiro, int deltaLinha, int deltaColuna) {
@@ -181,13 +162,12 @@ public class Jogador extends Personagem {
 
         if (destino.getCaixa() != null) {
             Caixa caixa = destino.getCaixa();
-            if (caixa.getTipo() == TipoCaixa.COMPSOGNATO_SURPRESA) {
-                destino.setCaixa(null);
-                System.out.println("Você encontrou um Compsognato dentro da caixa!");
-                return new Compsognato();
-            }
-            caixa.abrir(this);
+            Dinossauro d = null;
+            d = caixa.abrir(this);
             destino.setCaixa(null);
+            if (d != null) {
+                return d;
+            }
         }
         setPosicaoAnterior(getLinha(), getColuna());
         tabuleiro.getPosicao(getLinha(), getColuna()).setPersonagem(null);

@@ -2,7 +2,7 @@ package Personagens;
 
 import Jogo.Tabuleiro;
 
-public class Troodonte extends Dinossauro {
+public class Troodonte extends Dinossauro implements InimigoMovel {
     public Troodonte() {
         super(2, "Troodonte");
     }
@@ -11,7 +11,7 @@ public class Troodonte extends Dinossauro {
         return 'T';
     }
 
-    public Jogador moverDinossauro(Tabuleiro tabuleiro) {
+    public Jogador mover(Tabuleiro tabuleiro) {
         return tabuleiro.moverDinossauro(this);
     }
 

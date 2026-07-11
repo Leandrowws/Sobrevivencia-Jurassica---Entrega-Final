@@ -1,5 +1,6 @@
 package Jogo;
 
+import Caixas.Caixa;
 import Personagens.*;
 
 public class Posicao {
