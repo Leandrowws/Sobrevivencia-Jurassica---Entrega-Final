@@ -1,9 +1,13 @@
 package Jogo;
 
+import javax.swing.SwingUtilities;
+import InterfaceGrafica.TelaInicio;
+
 public class App {
     public static void main(String[] args) {
-        Jogo jogo = new Jogo();
-        jogo.iniciar();
-        jogo.executarTurnos();
+        SwingUtilities.invokeLater(() -> {
+            Jogo jogo = new Jogo();
+            new TelaInicio(jogo);
+        });
     }
 }

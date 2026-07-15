@@ -1,9 +1,14 @@
 package Jogo;
 
+import InterfaceGrafica.TelaFim;
+import javax.swing.SwingUtilities;
+import java.util.ArrayList;
+import Personagens.DinossauroMovel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import java.util.Scanner;
+import InterfaceGrafica.TelaCombate;
+import InterfaceGrafica.TelaJogo;
 import Personagens.Dinossauro;
 import Personagens.Jogador;
 
@@ -12,29 +17,21 @@ public class Jogo {
     private Tabuleiro tabuleiro;
     private Jogador jogador;
     private long semente;
-    private Scanner teclado;
     private Combate combate;
+    private String dificuldade;
     private File mapaAtual;
+    private TelaJogo tela;
+    private ArrayList<Thread> threadsDinossauros;
 
-    public Jogo() {
-        teclado = new Scanner(System.in);
-    }
-
-    private int lerInteiro() {
-        while (!teclado.hasNextInt()) {
-            System.out.println("Digite um número válido!");
-            teclado.next();
-        }
-        return teclado.nextInt();
-    }
-
-    public void iniciar() {
+    public void iniciar(int percepcao, String dificuldade) {
         semente = System.currentTimeMillis();
-        int percepcao = escolherDificuldade();
+        this.dificuldade = dificuldade;
         jogador = new Jogador(percepcao);
         tabuleiro = new Tabuleiro(10, semente);
-        combate = new Combate(semente, teclado);
-        Random random = new Random();
+        threadsDinossauros = new ArrayList<>();
+        combate = new Combate(semente);
+        combate.setJogo(this);
+        Random random = new Random(semente);
         int numero = random.nextInt(5) + 1;
         try {
             mapaAtual = new File("src/Mapas/mapa" + numero + ".txt");
@@ -43,162 +40,142 @@ public class Jogo {
             System.out.println("Erro ao carregar mapa.");
             e.printStackTrace();
         }
-    }
-
-    private int escolherDificuldade() {
-
-        int opcao;
-        System.out.println("=== SOBREVIVENCIA JURASSICA ===");
-        System.out.println("Escolha a dificuldade:");
-        System.out.println("1 - Fácil");
-        System.out.println("2 - Médio");
-        System.out.println("3 - Difícil");
-
-        opcao = lerInteiro();
-
-        while (opcao != 1 && opcao != 2 && opcao != 3) {
-            System.out.println("Digite 1, 2 ou 3");
-            opcao = lerInteiro();
-        }
-
-        switch (opcao) {
-            case 1:
-                return 3;
-            case 2:
-                return 2;
-            default:
-                return 1;
-        }
+        tela = new TelaJogo(this, tabuleiro.getTamanho());
+        tela.atualizar(tabuleiro);
+        iniciarThreadsDinossauros();
     }
 
     public void reiniciarJogo() {
+        pararThreadsDinossauros();
         int percepcao = jogador.getPercepcao();
         jogador = new Jogador(percepcao);
         tabuleiro = new Tabuleiro(10, semente);
-        combate = new Combate(semente, teclado);
+        combate = new Combate(semente);
+        combate.setJogo(this);
         try {
             tabuleiro.carregarMapa(mapaAtual, jogador);
         } catch (IOException e) {
             System.out.println("Erro ao carregar o mapa.");
             e.printStackTrace();
         }
-    }
-
-    public boolean menuPosJogo() {
-        while (true) {
-            System.out.println("Reiniciar (R)");
-            System.out.println("Novo Jogo (N)");
-            System.out.println("Fechar Jogo (Q)");
-
-            char comando = teclado.next().toUpperCase().charAt(0);
-
-            switch (comando) {
-                case 'R':
-                    reiniciarJogo();
-                    return true;
-                case 'N':
-                    iniciar();
-                    return true;
-                case 'Q':
-                    return false;
-                default:
-                    System.out.println("Opção inválida!");
-                    System.out.println();
-            }
-        }
-    }
-
-    private boolean acaoGastaTurno(char comando) {
-        return (comando == 'W' ||
-                comando == 'A' ||
-                comando == 'S' ||
-                comando == 'D' ||
-                comando == 'H');
+        tela.dispose();
+        tela = new TelaJogo(this, tabuleiro.getTamanho());
+        tela.atualizar(tabuleiro);
+        iniciarThreadsDinossauros();
     }
 
     public void executarTurnos() {
-        boolean debug = false;
-        while (true) {
-            Dinossauro inimigo = null;
-            if (debug == true) {
-                tabuleiro.imprimirMapaCompleto();
-            } else {
-                tabuleiro.imprimirMapaVisivel(jogador);
+        tela.atualizar(tabuleiro);
+    }
+
+    private synchronized void iniciarThreadsDinossauros() {
+        threadsDinossauros.clear();
+
+        for (Dinossauro d : tabuleiro.getDinossauros()) {
+            if (d instanceof DinossauroMovel) {
+                MovimentoDinossauro movimento = new MovimentoDinossauro(d, tabuleiro, 1000, this);
+                Thread thread = new Thread(movimento);
+                threadsDinossauros.add(thread);
+                thread.start();
             }
-
-            System.out.println();
-            System.out.println("Vida: " + jogador.getVida());
-            System.out.println("Percepção: " + jogador.getPercepcao());
-            System.out.println("Movimento (W A S D)");
-            System.out.println("Usar Kit Médico (H)");
-            System.out.println("Alternar Modo de Debug (B)");
-            System.out.println("Sair (Q)");
-
-            char comando = teclado.next().toUpperCase().charAt(0);
-
-            switch (comando) {
-                case 'H':
-                    jogador.usarKitMedico();
-                    break;
-                case 'Q':
-                    if (!menuPosJogo()) {
-                        return;
-                    }
-                    break;
-                case 'B':
-                    debug = !debug;
-                    break;
-
-                case 'W':
-                    inimigo = jogador.mover(tabuleiro, -1, 0);
-                    break;
-                case 'S':
-                    inimigo = jogador.mover(tabuleiro, 1, 0);
-                    break;
-                case 'A':
-                    inimigo = jogador.mover(tabuleiro, 0, -1);
-                    break;
-                case 'D':
-                    inimigo = jogador.mover(tabuleiro, 0, 1);
-                    break;
-
-                default:
-                    System.out.println("Comando inválido!");
-            }
-
-            if (acaoGastaTurno(comando)) {
-                if (inimigo != null) {
-                    if (!processarCombate(inimigo, true))
-                        return;
-                } else {
-                    inimigo = tabuleiro.moverTodosDinossauros();
-                    if (inimigo != null) {
-                        if (!processarCombate(inimigo, false))
-                            return;
-                    }
-                }
-            }
-
         }
     }
 
-    private boolean processarCombate(Dinossauro inimigo, boolean jogadorEncontrou) {
-        boolean sobreviveu = combate.iniciar(jogador, inimigo, tabuleiro, jogadorEncontrou);
+    private synchronized void pararThreadsDinossauros() {
 
-        if (!sobreviveu) {
-            System.out.println("Você morreu!");
-            if (!menuPosJogo()) {
-                return false;
-            }
-            return true;
+        for (Thread thread : threadsDinossauros) {
+            thread.interrupt();
         }
+
+        threadsDinossauros.clear();
+    }
+
+    public Jogador getJogador() {
+        return jogador;
+    }
+
+    public String getDificuldade() {
+        return dificuldade;
+    }
+
+    private void processarCombate(Dinossauro inimigo, boolean jogadorEncontrou) {
+        pararThreadsDinossauros();
+
+        combate.iniciar(jogador, inimigo, tabuleiro, jogadorEncontrou);
+        SwingUtilities.invokeLater(() -> {
+            TelaCombate telaCombate = new TelaCombate(this, combate);
+            telaCombate.setVisible(true);
+        });
+    }
+
+    public void atualizarTelaPrincipal() {
+
+        SwingUtilities.invokeLater(() -> tela.atualizar(tabuleiro));
+        tela.atualizar(tabuleiro);
+
+    }
+
+    public synchronized void iniciarCombateDinossauro(Dinossauro d) {
+        processarCombate(d, false);
+    }
+
+    public synchronized void finalizarCombate() {
+
+        if (combate.jogadorMorreu()) {
+            tela.dispose();
+            new TelaFim(this, false);
+        }
+
+        atualizarTelaPrincipal();
+
         if (tabuleiro.todosDinossaurosDerrotados()) {
-            System.out.println("PARABÉNS!");
-            System.out.println("Você sobreviveu à ilha jurássica!");
-            if (!menuPosJogo()) {
-                return false;
-            }
+            tela.dispose();
+            new TelaFim(this, true);
+        } else {
+            iniciarThreadsDinossauros();
         }
-        return true;
+    }
+
+    public void mensagem(String texto) {
+        SwingUtilities.invokeLater(() -> tela.adicionarMensagem(texto));
+    }
+
+    public void desistir() {
+        pararThreadsDinossauros();
+        tela.dispose();
+        new TelaFim(this, false);
+    }
+
+    public void processarComando(char comando) {
+        Dinossauro inimigo = null;
+
+        switch (Character.toUpperCase(comando)) {
+            case 'W':
+                inimigo = tabuleiro.moverJogador(jogador, -1, 0);
+                break;
+            case 'S':
+                inimigo = tabuleiro.moverJogador(jogador, 1, 0);
+                break;
+            case 'A':
+                inimigo = tabuleiro.moverJogador(jogador, 0, -1);
+                break;
+            case 'D':
+                inimigo = tabuleiro.moverJogador(jogador, 0, 1);
+                break;
+            case 'H':
+                jogador.usarKitMedico();
+                break;
+            default:
+                return;
+        }
+
+        tela.atualizar(tabuleiro);
+
+        if (inimigo != null) {
+
+            processarCombate(inimigo, true);
+
+            tela.atualizar(tabuleiro);
+        }
     }
 }

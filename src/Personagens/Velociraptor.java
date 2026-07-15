@@ -2,7 +2,7 @@ package Personagens;
 
 import Jogo.Tabuleiro;
 
-public class Velociraptor extends Dinossauro implements InimigoMovel {
+public class Velociraptor extends Dinossauro implements DinossauroMovel {
     public Velociraptor() {
         super(2, "Velociraptor");
     }

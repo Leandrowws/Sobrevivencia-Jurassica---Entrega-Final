@@ -17,7 +17,6 @@ import Personagens.Dinossauro;
 import Personagens.Troodonte;
 import Personagens.Velociraptor;
 import Personagens.Jogador;
-import Personagens.InimigoMovel;
 import Personagens.Personagem;
 import Personagens.TRex;
 
@@ -41,11 +40,15 @@ public class Tabuleiro {
         }
     }
 
+    public ArrayList<Dinossauro> getDinossauros() {
+        return dinossauros;
+    }
+
     public boolean contemEsseDinossauro(Dinossauro d) {
         return dinossauros.contains(d);
     }
 
-    public void removerDinossauro(Dinossauro d) {
+    public synchronized void removerDinossauro(Dinossauro d) {
         dinossauros.remove(d);
         mapa[d.getLinha()][d.getColuna()].setPersonagem(null);
     }
@@ -85,29 +88,15 @@ public class Tabuleiro {
         mapa[l][c].setCaixa(caixa);
     }
 
-    public void imprimirMapaCompleto() {
-        for (int i = 0; i < mapa.length; i++) {
-            for (int j = 0; j < mapa[i].length; j++) {
-                if (mapa[i][j].isParede()) {
-                    System.out.printf("# ");
-                } else if (mapa[i][j].getPersonagem() != null) {
-                    System.out.printf("%c ", mapa[i][j].getPersonagem().getSimbolo());
-                } else if (mapa[i][j].getCaixa() != null) {
-                    System.out.printf("X ");
-                } else {
-                    System.out.printf(". ");
-                }
-            }
-            System.out.printf("\n");
-        }
-    }
+    public synchronized boolean[][] calcularVisibilidade(Jogador jogador) {
 
-    public void imprimirMapaVisivel(Jogador jogador) {
         boolean[][] visivel = new boolean[mapa.length][mapa.length];
         int linha = jogador.getLinha();
         int coluna = jogador.getColuna();
         int alcance = jogador.getPercepcao() * 2;
+
         visivel[linha][coluna] = true;
+
         for (int i = linha - 1; i >= 0 && linha - i <= alcance; i--) {
             visivel[i][coluna] = true;
             if (!mapa[i][coluna].isLivre()) { // para cima
@@ -132,6 +121,13 @@ public class Tabuleiro {
                 break;
             }
         }
+
+        return visivel;
+    }
+
+    public void imprimirMapaVisivel(Jogador jogador) {
+        boolean[][] visivel = calcularVisibilidade(jogador);
+
         for (int i = 0; i < mapa.length; i++) {
             for (int j = 0; j < mapa[i].length; j++) {
                 if (!visivel[i][j]) {
@@ -150,13 +146,13 @@ public class Tabuleiro {
         }
     }
 
-    public void reposicionarJogador(Personagem p, int linha, int coluna) {
+    public synchronized void reposicionarJogador(Personagem p, int linha, int coluna) {
         mapa[p.getLinha()][p.getColuna()].setPersonagem(null);
         p.setPosicao(linha, coluna);
         mapa[linha][coluna].setPersonagem(p);
     }
 
-    public Jogador moverDinossauro(Dinossauro d) {
+    public synchronized Jogador moverDinossauro(Dinossauro d) {
         int direcao = random.nextInt(4);
         int deltaLinha = 0;
         int deltaColuna = 0;
@@ -202,15 +198,39 @@ public class Tabuleiro {
         return null;
     }
 
-    public Dinossauro moverTodosDinossauros() {
-        for (Dinossauro d : dinossauros) {
-            if (d instanceof InimigoMovel) {
-                Jogador jogadorEncontrado = ((InimigoMovel) d).mover(this);
-                if (jogadorEncontrado != null) {
-                    return d;
-                }
+    public synchronized Dinossauro moverJogador(Jogador jogador, int deltaLinha, int deltaColuna) {
+
+        int novaLinha = jogador.getLinha() + deltaLinha;
+        int novaColuna = jogador.getColuna() + deltaColuna;
+
+        if (novaLinha < 0 || novaLinha >= getTamanho() || novaColuna < 0 || novaColuna >= getTamanho()) {
+            return null;
+        }
+
+        Posicao origem = getPosicao(jogador.getLinha(), jogador.getColuna());
+        Posicao destino = getPosicao(novaLinha, novaColuna);
+
+        if (destino.isParede()) {
+            return null;
+        }
+
+        if (destino.getPersonagem() instanceof Dinossauro) {
+            return (Dinossauro) destino.getPersonagem();
+        }
+
+        if (destino.getCaixa() != null) {
+            Caixa caixa = destino.getCaixa();
+            Dinossauro d = caixa.abrir(jogador);
+            destino.setCaixa(null);
+            if (d != null) {
+                return d;
             }
         }
+
+        jogador.setPosicaoAnterior(jogador.getLinha(), jogador.getColuna());
+        origem.setPersonagem(null);
+        jogador.setPosicao(novaLinha, novaColuna);
+        destino.setPersonagem(jogador);
         return null;
     }
 

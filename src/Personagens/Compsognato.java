@@ -2,7 +2,7 @@ package Personagens;
 
 import Jogo.Tabuleiro;
 
-public class Compsognato extends Dinossauro implements InimigoMovel {
+public class Compsognato extends Dinossauro implements DinossauroMovel {
     public Compsognato() {
         super(1, "Compsognato");
     }
