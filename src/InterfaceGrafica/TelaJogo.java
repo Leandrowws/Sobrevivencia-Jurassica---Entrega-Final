@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
@@ -44,7 +45,7 @@ public class TelaJogo extends JFrame {
     private JLabel Municao;
     private JButton btnFechar;
     private JTextArea areaMensagens;
-    private final Map<String, Icon> Icones = new HashMap<>();
+    private final Map<String, Icon> Icones = new ConcurrentHashMap<>();
     private final Icon parede = carregarIcone("parede");
     private final Icon caixa = carregarIcone("caixa");
     private final Icon chao = carregarIcone("chao");
@@ -240,6 +241,7 @@ public class TelaJogo extends JFrame {
 
         if (!visivel) {
             botao.setIcon(null);
+            botao.setText("");
             botao.setOpaque(true);
             botao.setContentAreaFilled(true);
             botao.setBackground(Color.BLACK);
@@ -249,8 +251,6 @@ public class TelaJogo extends JFrame {
         botao.setText("");
         botao.setOpaque(false);
         botao.setContentAreaFilled(false);
-
-        botao.setText("");
         if (posicao.isParede()) {
             botao.setIcon(parede);
         } else if (posicao.getPersonagem() != null) {

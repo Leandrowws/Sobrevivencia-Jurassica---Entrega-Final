@@ -114,7 +114,6 @@ public class Jogo {
     public void atualizarTelaPrincipal() {
 
         SwingUtilities.invokeLater(() -> tela.atualizar(tabuleiro));
-        tela.atualizar(tabuleiro);
 
     }
 

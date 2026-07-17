@@ -201,12 +201,12 @@ public class Tabuleiro {
         int deltaLinha = Integer.compare(jogador.getLinha(), d.getLinha());
         int deltaColuna = Integer.compare(jogador.getColuna(), d.getColuna());
 
-        int diffLinha = Math.abs(jogador.getLinha() - d.getLinha());
-        int diffColuna = Math.abs(jogador.getColuna() - d.getColuna());
+        int difLinha = Math.abs(jogador.getLinha() - d.getLinha());
+        int difColuna = Math.abs(jogador.getColuna() - d.getColuna());
 
         boolean[] moveu = new boolean[1];
 
-        if (diffLinha >= diffColuna) {
+        if (difLinha >= difColuna) {
 
             Jogador encontrado = tentarMoverDirecao(d, deltaLinha, 0, moveu);
             if (encontrado != null || moveu[0]) {
