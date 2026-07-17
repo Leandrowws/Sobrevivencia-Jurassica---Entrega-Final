@@ -24,10 +24,6 @@ public class Jogador extends Personagem {
         return "jogador";
     }
 
-    public char getSimbolo() {
-        return 'J';
-    }
-
     public int getPercepcao() {
         return percepcao;
     }
@@ -119,10 +115,6 @@ public class Jogador extends Personagem {
         }
 
         return arma.atacar(alvo, 0, this);
-    }
-
-    public Dinossauro mover(Tabuleiro tabuleiro, int deltaLinha, int deltaColuna) {
-        return tabuleiro.moverJogador(this, deltaLinha, deltaColuna);
     }
 
     public boolean fugir(Tabuleiro tabuleiro) {

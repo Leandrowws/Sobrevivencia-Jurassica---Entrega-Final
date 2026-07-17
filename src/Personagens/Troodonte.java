@@ -7,10 +7,6 @@ public class Troodonte extends Dinossauro implements DinossauroMovel {
         super(2, "Troodonte");
     }
 
-    public char getSimbolo() {
-        return 'T';
-    }
-
     public Jogador mover(Tabuleiro tabuleiro) {
         return tabuleiro.moverDinossauroEmDirecao(this, tabuleiro.getJogador());
     }

@@ -42,10 +42,6 @@ public class Combate {
         return combateAtivo;
     }
 
-    public boolean jogadorVenceu() {
-        return dinossauro.getVida() <= 0;
-    }
-
     public int getNumeroAcoes() {
         return jogador.getNumeroAcoesAtaque();
     }
@@ -68,22 +64,6 @@ public class Combate {
 
     public boolean jogadorMorreu() {
         return jogador.getVida() <= 0;
-    }
-
-    public Jogador getJogador() {
-        return jogador;
-    }
-
-    public Dinossauro getDinossauro() {
-        return dinossauro;
-    }
-
-    public Tabuleiro getTabuleiro() {
-        return tabuleiro;
-    }
-
-    public Random getRandom() {
-        return random;
     }
 
     public boolean ehTurnoJogador() {
@@ -209,10 +189,6 @@ public class Combate {
         }
 
         return true;
-    }
-
-    public void acaoFugir() {
-        fugir();
     }
 
     public void executarTurnoDinossauro() {

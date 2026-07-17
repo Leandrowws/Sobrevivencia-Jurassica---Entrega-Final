@@ -7,10 +7,6 @@ public class Compsognato extends Dinossauro implements DinossauroMovel {
         super(1, "Compsognato");
     }
 
-    public char getSimbolo() {
-        return 'C';
-    }
-
     public Jogador mover(Tabuleiro tabuleiro) {
         return tabuleiro.moverDinossauro(this);
     }

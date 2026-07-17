@@ -130,7 +130,7 @@ public class Jogo {
             telaCombate.setVisible(true);
             if (!combate.ehTurnoJogador()) {
                 combate.executarTurnoDinossauro();
-                telaCombate.atualizarInformacoes();
+                telaCombate.atualizarTela();
             }
         });
     }

@@ -1,19 +1,9 @@
 package Personagens;
 
-import Jogo.Tabuleiro;
-
 public class TRex extends Dinossauro {
 
     public TRex() {
         super(3, "Indomável Tiranossauro Rex");
-    }
-
-    public char getSimbolo() {
-        return 'R';
-    }
-
-    public Jogador moverDinossauro(Tabuleiro tabuleiro) {
-        return null;
     }
 
     public void morder(Jogador jogador) {

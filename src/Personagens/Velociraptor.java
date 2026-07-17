@@ -7,10 +7,6 @@ public class Velociraptor extends Dinossauro implements DinossauroMovel {
         super(2, "Velociraptor");
     }
 
-    public char getSimbolo() {
-        return 'V';
-    }
-
     public Jogador mover(Tabuleiro tabuleiro) {
         Jogador jogador = tabuleiro.moverDinossauro(this);
         if (jogador != null) {

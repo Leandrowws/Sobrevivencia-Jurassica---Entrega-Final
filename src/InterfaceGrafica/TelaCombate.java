@@ -65,7 +65,7 @@ public class TelaCombate extends JFrame {
         Fugir.setEnabled(combate.podeFugir());
     }
 
-    private void atualizarTela() {
+    public void atualizarTela() {
 
         atualizarInformacoes();
 

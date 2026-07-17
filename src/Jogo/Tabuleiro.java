@@ -71,10 +71,6 @@ public class Tabuleiro {
         return jogador;
     }
 
-    public Personagem getPersonagem(int linha, int coluna) {
-        return mapa[linha][coluna].getPersonagem();
-    }
-
     public synchronized boolean fugirParaCelulaLivre(Personagem p) {
 
         int linha = p.getLinha();
