@@ -52,7 +52,7 @@ public class TelaCombate extends JFrame {
         setLayout(new BorderLayout());
     }
 
-    private void atualizarInformacoes() {
+    public void atualizarInformacoes() {
 
         Titulo.setText("Combate contra " + combate.getNomeDinossauro());
 

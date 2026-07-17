@@ -193,7 +193,14 @@ public class Combate {
             return false;
         }
 
-        jogador.fugir(tabuleiro);
+        boolean conseguiuFugir = jogador.fugir(tabuleiro);
+
+        if (!conseguiuFugir) {
+            if (jogo != null) {
+                jogo.mensagem("Você tentou fugir, mas o caminho estava bloqueado!");
+            }
+            return false;
+        }
 
         combateAtivo = false;
 

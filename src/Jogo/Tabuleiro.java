@@ -26,6 +26,7 @@ public class Tabuleiro {
     private ArrayList<Dinossauro> dinossauros;
     private Random random;
     private Jogador jogador;
+    private int[][] DIRECOES_ADJACENTES = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
     public Tabuleiro(int tamanho, long semente) {
 
@@ -72,6 +73,40 @@ public class Tabuleiro {
 
     public Personagem getPersonagem(int linha, int coluna) {
         return mapa[linha][coluna].getPersonagem();
+    }
+
+    public synchronized boolean fugirParaCelulaLivre(Personagem p) {
+
+        int linha = p.getLinha();
+        int coluna = p.getColuna();
+
+        for (int[] direcao : DIRECOES_ADJACENTES) {
+
+            int novaLinha = linha + direcao[0];
+            int novaColuna = coluna + direcao[1];
+
+            if (posicaoLivre(novaLinha, novaColuna)) {
+
+                mapa[linha][coluna].setPersonagem(null);
+                p.setPosicao(novaLinha, novaColuna);
+                mapa[novaLinha][novaColuna].setPersonagem(p);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public synchronized boolean posicaoLivre(int linha, int coluna) {
+
+        if (linha < 0 || linha >= mapa.length || coluna < 0 || coluna >= mapa.length) {
+            return false;
+        }
+
+        Posicao posicao = mapa[linha][coluna];
+
+        return !posicao.isParede() && posicao.getPersonagem() == null;
     }
 
     public void posicionarJogador(Jogador j, int linha, int coluna) {
@@ -129,12 +164,6 @@ public class Tabuleiro {
         }
 
         return visivel;
-    }
-
-    public synchronized void reposicionarJogador(Personagem p, int linha, int coluna) {
-        mapa[p.getLinha()][p.getColuna()].setPersonagem(null);
-        p.setPosicao(linha, coluna);
-        mapa[linha][coluna].setPersonagem(p);
     }
 
     public synchronized Jogador moverDinossauro(Dinossauro d) {
@@ -257,7 +286,6 @@ public class Tabuleiro {
             }
         }
 
-        jogador.setPosicaoAnterior(jogador.getLinha(), jogador.getColuna());
         origem.setPersonagem(null);
         jogador.setPosicao(novaLinha, novaColuna);
         destino.setPersonagem(jogador);

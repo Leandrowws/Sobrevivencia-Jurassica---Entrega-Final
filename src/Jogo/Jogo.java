@@ -23,6 +23,7 @@ public class Jogo {
     private TelaJogo tela;
     private ArrayList<Thread> threadsDinossauros;
     private TelaCombate telaCombate;
+    private boolean emCombate = false;
 
     public void iniciar(int percepcao, String dificuldade) {
         semente = System.currentTimeMillis();
@@ -49,21 +50,28 @@ public class Jogo {
 
     public void reiniciarJogo() {
         pararThreadsDinossauros();
+
+        emCombate = false;
+        telaCombate = null;
+
         int percepcao = jogador.getPercepcao();
         jogador = new Jogador(percepcao);
         jogador.setJogo(this);
         tabuleiro = new Tabuleiro(10, semente);
         combate = new Combate(semente);
         combate.setJogo(this);
+
         try {
             tabuleiro.carregarMapa(mapaAtual, jogador);
         } catch (IOException e) {
             System.out.println("Erro ao carregar o mapa.");
             e.printStackTrace();
         }
+
         tela.dispose();
         tela = new TelaJogo(this, tabuleiro.getTamanho());
         tela.atualizar(tabuleiro);
+
         iniciarThreadsDinossauros();
     }
 
@@ -101,13 +109,29 @@ public class Jogo {
         return dificuldade;
     }
 
-    private void processarCombate(Dinossauro inimigo, boolean jogadorEncontrou) {
+    private synchronized void processarCombate(Dinossauro inimigo, boolean jogadorEncontrou) {
+
+        if (emCombate) {
+            return;
+        }
+
+        if (!jogadorEncontrou && !tabuleiro.contemEsseDinossauro(inimigo)) {
+            return;
+        }
+
+        emCombate = true;
+
         pararThreadsDinossauros();
 
         combate.iniciar(jogador, inimigo, tabuleiro, jogadorEncontrou);
+
         SwingUtilities.invokeLater(() -> {
             telaCombate = new TelaCombate(this, combate);
             telaCombate.setVisible(true);
+            if (!combate.ehTurnoJogador()) {
+                combate.executarTurnoDinossauro();
+                telaCombate.atualizarInformacoes();
+            }
         });
     }
 
@@ -117,12 +141,13 @@ public class Jogo {
 
     }
 
-    public synchronized void iniciarCombateDinossauro(Dinossauro d) {
+    public void iniciarCombateDinossauro(Dinossauro d) {
         processarCombate(d, false);
     }
 
     public synchronized void finalizarCombate() {
 
+        emCombate = false;
         telaCombate = null;
 
         if (combate.jogadorMorreu()) {

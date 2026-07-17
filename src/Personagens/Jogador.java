@@ -12,8 +12,6 @@ public class Jogador extends Personagem {
 
     private int percepcao;
     private Inventario inventario;
-    private int linhaAnterior;
-    private int colunaAnterior;
     private Jogo jogo;
 
     public Jogador(int percepcao) {
@@ -24,19 +22,6 @@ public class Jogador extends Personagem {
 
     public String getNomeIcone() {
         return "jogador";
-    }
-
-    public int getLinhaAnterior() {
-        return linhaAnterior;
-    }
-
-    public int getColunaAnterior() {
-        return colunaAnterior;
-    }
-
-    public void setPosicaoAnterior(int linha, int coluna) {
-        linhaAnterior = linha;
-        colunaAnterior = coluna;
     }
 
     public char getSimbolo() {
@@ -140,7 +125,7 @@ public class Jogador extends Personagem {
         return tabuleiro.moverJogador(this, deltaLinha, deltaColuna);
     }
 
-    public void fugir(Tabuleiro tabuleiro) {
-        tabuleiro.reposicionarJogador(this, linhaAnterior, colunaAnterior);
+    public boolean fugir(Tabuleiro tabuleiro) {
+        return tabuleiro.fugirParaCelulaLivre(this);
     }
 }
