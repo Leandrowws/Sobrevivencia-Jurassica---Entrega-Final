@@ -27,4 +27,8 @@ public class Compsognato extends Dinossauro implements DinossauroMovel {
         return false;
     }
 
+    public String getNomeIcone() {
+        return "compsognato";
+    }
+
 }

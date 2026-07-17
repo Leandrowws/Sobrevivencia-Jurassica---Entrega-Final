@@ -12,11 +12,15 @@ public class Troodonte extends Dinossauro implements DinossauroMovel {
     }
 
     public Jogador mover(Tabuleiro tabuleiro) {
-        return tabuleiro.moverDinossauro(this);
+        return tabuleiro.moverDinossauroEmDirecao(this, tabuleiro.getJogador());
     }
 
     public void morder(Jogador jogador) {
         jogador.perderVida(1);
+    }
+
+    public String getNomeIcone() {
+        return "troodonte";
     }
 
 }

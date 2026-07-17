@@ -13,7 +13,7 @@ public abstract class Dinossauro extends Personagem {
         especie = e;
     }
 
-    public boolean receberAtaqueBasico(int dano) {
+    public boolean receberAtaqueBasico(int dano, Jogador jogador) {
         perderVida(dano);
         return true;
     }
@@ -30,7 +30,7 @@ public abstract class Dinossauro extends Personagem {
         return true;
     }
 
-    public void receberDardo(int dano) {
+    public void receberDardo(int dano, Jogador jogador) {
         perderVida(dano);
     }
 

@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
 import javax.swing.ActionMap;
@@ -28,8 +31,6 @@ import javax.swing.BoxLayout;
 import javax.swing.Box;
 import javax.swing.JScrollPane;
 import java.awt.Image;
-import javax.swing.ImageIcon;
-import javax.swing.Icon;
 
 public class TelaJogo extends JFrame {
     private JButton[][] botoes;
@@ -43,14 +44,10 @@ public class TelaJogo extends JFrame {
     private JLabel Municao;
     private JButton btnFechar;
     private JTextArea areaMensagens;
-    private final Icon parede = carregarIcone("/InterfaceGrafica/Imagens/parede.png", 100, 100);
-    private final Icon jogador = carregarIcone("/InterfaceGrafica/Imagens/jogador.png", 100, 100);
-    private final Icon caixa = carregarIcone("/InterfaceGrafica/Imagens/caixa.png", 100, 100);
-    private final Icon chao = carregarIcone("/InterfaceGrafica/Imagens/chao.png", 100, 100);
-    private final Icon compsognato = carregarIcone("/InterfaceGrafica/Imagens/compsognato.png", 100, 100);
-    private final Icon troodonte = carregarIcone("/InterfaceGrafica/Imagens/troodonte.png", 100, 100);
-    private final Icon velociraptor = carregarIcone("/InterfaceGrafica/Imagens/velociraptor.png", 100, 100);
-    private final Icon trex = carregarIcone("/InterfaceGrafica/Imagens/trex.png", 100, 100);
+    private final Map<String, Icon> Icones = new HashMap<>();
+    private final Icon parede = carregarIcone("parede");
+    private final Icon caixa = carregarIcone("caixa");
+    private final Icon chao = carregarIcone("chao");
 
     public TelaJogo(Jogo jogo, int tamanho) {
 
@@ -88,10 +85,12 @@ public class TelaJogo extends JFrame {
         setVisible(true);
     }
 
-    private Icon carregarIcone(String caminho, int largura, int altura) {
-        Image img = new ImageIcon(getClass().getResource(caminho)).getImage();
-        Image imgRedimensionada = img.getScaledInstance(largura, altura, Image.SCALE_SMOOTH);
-        return new ImageIcon(imgRedimensionada);
+    private Icon carregarIcone(String nome) {
+        return Icones.computeIfAbsent(nome, n -> {
+            ImageIcon original = new ImageIcon(getClass().getResource("/InterfaceGrafica/Imagens/" + n + ".png"));
+            Image escalada = original.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            return new ImageIcon(escalada);
+        });
     }
 
     private void criarPainelInfo() {
@@ -241,7 +240,6 @@ public class TelaJogo extends JFrame {
 
         if (!visivel) {
             botao.setIcon(null);
-            botao.setText("");
             botao.setOpaque(true);
             botao.setContentAreaFilled(true);
             botao.setBackground(Color.BLACK);
@@ -256,17 +254,7 @@ public class TelaJogo extends JFrame {
         if (posicao.isParede()) {
             botao.setIcon(parede);
         } else if (posicao.getPersonagem() != null) {
-            if (posicao.getPersonagem().getSimbolo() == 'J') {
-                botao.setIcon(jogador);
-            } else if (posicao.getPersonagem().getSimbolo() == 'C') {
-                botao.setIcon(compsognato);
-            } else if (posicao.getPersonagem().getSimbolo() == 'T') {
-                botao.setIcon(troodonte);
-            } else if (posicao.getPersonagem().getSimbolo() == 'V') {
-                botao.setIcon(velociraptor);
-            } else if (posicao.getPersonagem().getSimbolo() == 'R') {
-                botao.setIcon(trex);
-            }
+            botao.setIcon(carregarIcone(posicao.getPersonagem().getNomeIcone()));
         } else if (posicao.getCaixa() != null) {
             botao.setIcon(caixa);
         } else {

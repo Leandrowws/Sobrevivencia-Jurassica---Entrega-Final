@@ -2,16 +2,19 @@ package Jogo;
 
 import Personagens.Jogador;
 import Personagens.Dinossauro;
+import Personagens.DinossauroMovel;
 
 public class MovimentoDinossauro implements Runnable {
 
     private Dinossauro dinossauro;
+    private DinossauroMovel dinossauroMovel;
     private Tabuleiro tabuleiro;
     private long intervalo;
     private Jogo jogo;
 
     public MovimentoDinossauro(Dinossauro dinossauro, Tabuleiro tabuleiro, long intervalo, Jogo jogo) {
         this.dinossauro = dinossauro;
+        this.dinossauroMovel = (DinossauroMovel) dinossauro;
         this.tabuleiro = tabuleiro;
         this.intervalo = intervalo;
         this.jogo = jogo;
@@ -21,7 +24,7 @@ public class MovimentoDinossauro implements Runnable {
 
         while (dinossauro.estaVivo() && !Thread.currentThread().isInterrupted()) {
 
-            Jogador jogadorEncontrado = tabuleiro.moverDinossauro(dinossauro);
+            Jogador jogadorEncontrado = dinossauroMovel.mover(tabuleiro);
 
             if (jogadorEncontrado != null) {
 

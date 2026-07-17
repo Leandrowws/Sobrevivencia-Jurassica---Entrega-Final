@@ -22,11 +22,13 @@ public class Jogo {
     private File mapaAtual;
     private TelaJogo tela;
     private ArrayList<Thread> threadsDinossauros;
+    private TelaCombate telaCombate;
 
     public void iniciar(int percepcao, String dificuldade) {
         semente = System.currentTimeMillis();
         this.dificuldade = dificuldade;
         jogador = new Jogador(percepcao);
+        jogador.setJogo(this);
         tabuleiro = new Tabuleiro(10, semente);
         threadsDinossauros = new ArrayList<>();
         combate = new Combate(semente);
@@ -49,6 +51,7 @@ public class Jogo {
         pararThreadsDinossauros();
         int percepcao = jogador.getPercepcao();
         jogador = new Jogador(percepcao);
+        jogador.setJogo(this);
         tabuleiro = new Tabuleiro(10, semente);
         combate = new Combate(semente);
         combate.setJogo(this);
@@ -103,7 +106,7 @@ public class Jogo {
 
         combate.iniciar(jogador, inimigo, tabuleiro, jogadorEncontrou);
         SwingUtilities.invokeLater(() -> {
-            TelaCombate telaCombate = new TelaCombate(this, combate);
+            telaCombate = new TelaCombate(this, combate);
             telaCombate.setVisible(true);
         });
     }
@@ -121,9 +124,12 @@ public class Jogo {
 
     public synchronized void finalizarCombate() {
 
+        telaCombate = null;
+
         if (combate.jogadorMorreu()) {
             tela.dispose();
             new TelaFim(this, false);
+            return;
         }
 
         atualizarTelaPrincipal();
@@ -137,7 +143,12 @@ public class Jogo {
     }
 
     public void mensagem(String texto) {
-        SwingUtilities.invokeLater(() -> tela.adicionarMensagem(texto));
+        SwingUtilities.invokeLater(() -> {
+            tela.adicionarMensagem(texto);
+            if (telaCombate != null) {
+                telaCombate.adicionarMensagem(texto);
+            }
+        });
     }
 
     public void desistir() {

@@ -13,7 +13,6 @@ public class Combate {
     private Dinossauro dinossauro;
     private Tabuleiro tabuleiro;
     private Jogo jogo;
-    private String ultimaMensagem = "";
     private boolean turnoJogador;
     private boolean combateAtivo;
 
@@ -30,8 +29,6 @@ public class Combate {
         combateAtivo = true;
         turnoJogador = dinossauro.emboscaJogador(jogadorEncontrou);
 
-        ultimaMensagem = "O combate começou!";
-
         if (jogo != null) {
             jogo.mensagem("Você entrou em combate contra o " + dinossauro.getEspecie() + "!");
         }
@@ -39,10 +36,6 @@ public class Combate {
 
     public void setJogo(Jogo jogo) {
         this.jogo = jogo;
-    }
-
-    public String getUltimaMensagem() {
-        return ultimaMensagem;
     }
 
     public boolean combateAtivo() {
@@ -103,9 +96,9 @@ public class Combate {
 
         if (dado > jogador.getPercepcao()) {
             dinossauro.morder(jogador);
-            ultimaMensagem = "O " + dinossauro.getEspecie() + " te mordeu!";
+            jogo.mensagem("O " + dinossauro.getEspecie() + " te mordeu!");
         } else {
-            ultimaMensagem = "Você percebeu o ataque a tempo e desviou!";
+            jogo.mensagem("Você percebeu o ataque a tempo e desviou!");
         }
 
         turnoJogador = true;
@@ -117,7 +110,9 @@ public class Combate {
 
         int dado = random.nextInt(6) + 1;
 
-        ultimaMensagem = "Você atacou corpo a corpo! (Dado: " + dado + ")";
+        if (jogo != null) {
+            jogo.mensagem("Você atacou corpo a corpo! (Dado: " + dado + ")");
+        }
 
         jogador.atacarCorpoACorpo(dinossauro, dado);
 
@@ -144,10 +139,10 @@ public class Combate {
         boolean atacou = jogador.atirarDardo(dinossauro);
 
         if (atacou) {
-            ultimaMensagem = "Você atirou um dardo! (Dado: " + dado + ")";
+            if (jogo != null) {
+                jogo.mensagem("Você atirou um dardo! (Dado: " + dado + ")");
+            }
             turnoJogador = false;
-        } else {
-            ultimaMensagem = "Você não possui dardos disponíveis!";
         }
 
         verificarFimCombate();
@@ -172,12 +167,7 @@ public class Combate {
 
     public void usarKitMedico() {
 
-        boolean usou = jogador.usarKitMedico();
-        if (usou) {
-            ultimaMensagem = "Você usou o kit médico!";
-        } else {
-            ultimaMensagem = "Não foi possível usar o kit médico.";
-        }
+        jogador.usarKitMedico();
 
         turnoJogador = false;
 
@@ -197,12 +187,19 @@ public class Combate {
     public boolean fugir() {
 
         if (!dinossauro.permiteFuga()) {
+            if (jogo != null) {
+                jogo.mensagem("Não é possível fugir deste dinossauro!");
+            }
             return false;
         }
 
         jogador.fugir(tabuleiro);
 
         combateAtivo = false;
+
+        if (jogo != null) {
+            jogo.mensagem("Você fugiu do combate!");
+        }
 
         return true;
     }
@@ -227,7 +224,7 @@ public class Combate {
 
         if (dinossauro.getVida() <= 0) {
 
-            System.out.println("Dinossauro derrotado!");
+            jogador.getJogo().mensagem("Dinossauro derrotado!");
 
             if (tabuleiro.contemEsseDinossauro(dinossauro)) {
                 tabuleiro.removerDinossauro(dinossauro);

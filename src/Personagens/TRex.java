@@ -20,9 +20,15 @@ public class TRex extends Dinossauro {
         jogador.perderVida(2);
     }
 
-    public boolean receberAtaqueBasico(int dano) {
-        System.out.println("Suas mãos não são capazes de ferir o indomável TRex!");
+    public boolean receberAtaqueBasico(int dano, Jogador jogador) {
+        if (jogador.getJogo() != null) {
+            jogador.getJogo().mensagem("Suas mãos não são capazes de ferir o indomável TRex!");
+        }
         return false;
+    }
+
+    public String getNomeIcone() {
+        return "trex";
     }
 
 }

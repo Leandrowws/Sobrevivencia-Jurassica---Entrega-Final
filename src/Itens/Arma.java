@@ -1,6 +1,7 @@
 package Itens;
 
 import Personagens.Dinossauro;
+import Personagens.Jogador;
 
 public abstract class Arma extends Item {
 
@@ -8,5 +9,5 @@ public abstract class Arma extends Item {
         super(nome);
     }
 
-    public abstract boolean atacar(Dinossauro alvo, int dado);
+    public abstract boolean atacar(Dinossauro alvo, int dado, Jogador jogador);
 }

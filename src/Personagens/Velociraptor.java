@@ -23,8 +23,14 @@ public class Velociraptor extends Dinossauro implements DinossauroMovel {
         jogador.perderVida(1);
     }
 
-    public void receberDardo(int dano) {
-        System.out.println("O velociraptor desviou do disparo!");
+    public void receberDardo(int dano, Jogador jogador) {
+        if (jogador.getJogo() != null) {
+            jogador.getJogo().mensagem("O velociraptor desviou do disparo!");
+        }
+    }
+
+    public String getNomeIcone() {
+        return "velociraptor";
     }
 
 }

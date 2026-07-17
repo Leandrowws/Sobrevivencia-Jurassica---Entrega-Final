@@ -25,6 +25,7 @@ public class Tabuleiro {
     private Posicao[][] mapa;
     private ArrayList<Dinossauro> dinossauros;
     private Random random;
+    private Jogador jogador;
 
     public Tabuleiro(int tamanho, long semente) {
 
@@ -65,11 +66,16 @@ public class Tabuleiro {
         return mapa[linha][coluna];
     }
 
+    public synchronized Jogador getJogador() {
+        return jogador;
+    }
+
     public Personagem getPersonagem(int linha, int coluna) {
         return mapa[linha][coluna].getPersonagem();
     }
 
     public void posicionarJogador(Jogador j, int linha, int coluna) {
+        this.jogador = j;
         j.setPosicao(linha, coluna);
         mapa[linha][coluna].setPersonagem(j);
     }
@@ -125,27 +131,6 @@ public class Tabuleiro {
         return visivel;
     }
 
-    public void imprimirMapaVisivel(Jogador jogador) {
-        boolean[][] visivel = calcularVisibilidade(jogador);
-
-        for (int i = 0; i < mapa.length; i++) {
-            for (int j = 0; j < mapa[i].length; j++) {
-                if (!visivel[i][j]) {
-                    System.out.printf("? ");
-                } else if (mapa[i][j].isParede()) {
-                    System.out.printf("# ");
-                } else if (mapa[i][j].getPersonagem() != null) {
-                    System.out.printf("%c ", mapa[i][j].getPersonagem().getSimbolo());
-                } else if (mapa[i][j].getCaixa() != null) {
-                    System.out.printf("X ");
-                } else {
-                    System.out.printf(". ");
-                }
-            }
-            System.out.println();
-        }
-    }
-
     public synchronized void reposicionarJogador(Personagem p, int linha, int coluna) {
         mapa[p.getLinha()][p.getColuna()].setPersonagem(null);
         p.setPosicao(linha, coluna);
@@ -172,6 +157,17 @@ public class Tabuleiro {
                 break;
         }
 
+        boolean[] moveu = new boolean[1];
+
+        return tentarMoverDirecao(d, deltaLinha, deltaColuna, moveu);
+    }
+
+    private synchronized Jogador tentarMoverDirecao(Dinossauro d, int deltaLinha, int deltaColuna, boolean[] moveu) {
+
+        if (deltaLinha == 0 && deltaColuna == 0) {
+            return null;
+        }
+
         int novaLinha = d.getLinha() + deltaLinha;
         int novaColuna = d.getColuna() + deltaColuna;
 
@@ -195,7 +191,37 @@ public class Tabuleiro {
         mapa[d.getLinha()][d.getColuna()].setPersonagem(null);
         d.setPosicao(novaLinha, novaColuna);
         mapa[novaLinha][novaColuna].setPersonagem(d);
+        moveu[0] = true;
+
         return null;
+    }
+
+    public synchronized Jogador moverDinossauroEmDirecao(Dinossauro d, Jogador jogador) {
+
+        int deltaLinha = Integer.compare(jogador.getLinha(), d.getLinha());
+        int deltaColuna = Integer.compare(jogador.getColuna(), d.getColuna());
+
+        int diffLinha = Math.abs(jogador.getLinha() - d.getLinha());
+        int diffColuna = Math.abs(jogador.getColuna() - d.getColuna());
+
+        boolean[] moveu = new boolean[1];
+
+        if (diffLinha >= diffColuna) {
+
+            Jogador encontrado = tentarMoverDirecao(d, deltaLinha, 0, moveu);
+            if (encontrado != null || moveu[0]) {
+                return encontrado;
+            }
+            return tentarMoverDirecao(d, 0, deltaColuna, moveu);
+
+        } else {
+
+            Jogador encontrado = tentarMoverDirecao(d, 0, deltaColuna, moveu);
+            if (encontrado != null || moveu[0]) {
+                return encontrado;
+            }
+            return tentarMoverDirecao(d, deltaLinha, 0, moveu);
+        }
     }
 
     public synchronized Dinossauro moverJogador(Jogador jogador, int deltaLinha, int deltaColuna) {
@@ -220,9 +246,13 @@ public class Tabuleiro {
 
         if (destino.getCaixa() != null) {
             Caixa caixa = destino.getCaixa();
+            if (jogador.getJogo() != null) {
+                jogador.getJogo().mensagem("Você abriu uma caixa!");
+            }
             Dinossauro d = caixa.abrir(jogador);
             destino.setCaixa(null);
             if (d != null) {
+                jogador.getJogo().mensagem("Um Compsognato saiu da caixa");
                 return d;
             }
         }

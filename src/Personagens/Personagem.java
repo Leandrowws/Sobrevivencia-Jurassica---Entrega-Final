@@ -47,5 +47,5 @@ public abstract class Personagem {
         return vida > 0;
     }
 
-    public abstract char getSimbolo();
+    public abstract String getNomeIcone();
 }

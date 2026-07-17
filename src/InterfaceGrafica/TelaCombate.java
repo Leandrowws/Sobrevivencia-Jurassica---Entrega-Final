@@ -7,6 +7,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
 import Jogo.Combate;
@@ -19,7 +21,7 @@ public class TelaCombate extends JFrame {
     private JLabel Titulo;
     private JLabel VidaJogador;
     private JLabel VidaDinossauro;
-    private JLabel Mensagem;
+    private JTextArea areaMensagens;
 
     private JButton Atacar;
     private JButton Dardo;
@@ -82,8 +84,6 @@ public class TelaCombate extends JFrame {
 
         VidaDinossauro = new JLabel();
 
-        Mensagem = new JLabel("O combate começou!", SwingConstants.CENTER);
-
         add(Titulo, BorderLayout.NORTH);
 
         JPanel painelCentro = new JPanel(new GridLayout(2, 1));
@@ -128,12 +128,25 @@ public class TelaCombate extends JFrame {
 
         painelBotoes.add(Fugir);
 
+        areaMensagens = new JTextArea();
+        areaMensagens.setEditable(false);
+        areaMensagens.setFocusable(false);
+        areaMensagens.setLineWrap(true);
+        areaMensagens.setWrapStyleWord(true);
+        areaMensagens.setRows(5);
+
+        JScrollPane scrollMensagens = new JScrollPane(areaMensagens);
+
         JPanel painelInferior = new JPanel(new BorderLayout());
 
         painelInferior.add(painelBotoes, BorderLayout.CENTER);
 
-        painelInferior.add(Mensagem, BorderLayout.SOUTH);
+        painelInferior.add(scrollMensagens, BorderLayout.SOUTH);
 
         add(painelInferior, BorderLayout.SOUTH);
+    }
+
+    public void adicionarMensagem(String texto) {
+        areaMensagens.append(texto + "\n");
     }
 }

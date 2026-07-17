@@ -1,6 +1,8 @@
 package Itens;
 
+import Jogo.Jogo;
 import Personagens.Dinossauro;
+import Personagens.Jogador;
 
 public class ArmaDardos extends Arma {
 
@@ -11,17 +13,24 @@ public class ArmaDardos extends Arma {
         municao = 2;
     }
 
-    public boolean atacar(Dinossauro alvo, int dado) {
+    public boolean atacar(Dinossauro alvo, int dado, Jogador jogador) {
+
+        Jogo jogo = jogador.getJogo();
 
         if (municao == 0) {
-            System.out.println("Sem munição!");
+            if (jogo != null) {
+                jogo.mensagem("Sem munição!");
+            }
             return false;
         }
 
         municao--;
 
-        System.out.println("Dardo disparado!");
-        alvo.receberDardo(2);
+        if (jogo != null) {
+            jogo.mensagem("Dardo disparado!");
+        }
+
+        alvo.receberDardo(2, jogador);
 
         return true;
     }

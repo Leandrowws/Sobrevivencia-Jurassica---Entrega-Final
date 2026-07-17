@@ -22,6 +22,10 @@ public class Jogador extends Personagem {
         inventario = new Inventario();
     }
 
+    public String getNomeIcone() {
+        return "jogador";
+    }
+
     public int getLinhaAnterior() {
         return linhaAnterior;
     }
@@ -63,9 +67,22 @@ public class Jogador extends Personagem {
     }
 
     public void adicionarItem(Item item) {
+        if (item instanceof ArmaDardos) {
+
+            ArmaDardos armaExistente = inventario.getArmaDardos();
+
+            if (armaExistente != null) {
+                armaExistente.adicionarMunicao();
+                if (jogo != null) {
+                    jogo.mensagem("Você encontrou munição extra para a Arma de Dardos!");
+                }
+                return;
+            }
+        }
+
         inventario.adicionar(item);
         if (jogo != null) {
-            jogo.mensagem("Voce encontrou um(a) " + item.getNome());
+            jogo.mensagem("Você encontrou um(a) " + item.getNome());
         }
     }
 
@@ -97,34 +114,26 @@ public class Jogador extends Personagem {
         return true;
     }
 
-    public void mostrarAcoesDisponiveis() {
-        if (inventario.temBastao()) {
-            System.out.println("1 - Atacar com o Bastão Elétrico");
-        } else {
-            System.out.println("1 - Atacar com as mãos");
-        }
-        if (inventario.temArmaDardos())
-            System.out.println("2 - Atacar com a Arma de Dardos");
-    }
-
     public int getNumeroAcoesAtaque() {
         return inventario.quantidadeArmas();
     }
 
     public boolean atacarCorpoACorpo(Dinossauro alvo, int dado) {
         Arma arma = inventario.getArmaCorpoACorpo();
-        return arma.atacar(alvo, dado);
+        return arma.atacar(alvo, dado, this);
     }
 
     public boolean atirarDardo(Dinossauro alvo) {
         ArmaDardos arma = inventario.getArmaDardos();
 
         if (arma == null) {
-            System.out.println("Você não possui arma.");
+            if (jogo != null) {
+                jogo.mensagem("Você não possui arma de dardos.");
+            }
             return false;
         }
 
-        return arma.atacar(alvo, 0);
+        return arma.atacar(alvo, 0, this);
     }
 
     public Dinossauro mover(Tabuleiro tabuleiro, int deltaLinha, int deltaColuna) {
