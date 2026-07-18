@@ -44,7 +44,7 @@ public class TelaJogo extends JFrame {
     private JLabel Municao;
     private JButton btnFechar;
     private JTextArea areaMensagens;
-    private final Map<String, Icon> Icones = new ConcurrentHashMap<>();
+    private final Map<String, Icon> IconesPersonagens = new ConcurrentHashMap<>();
     private final Icon parede = carregarIcone("parede");
     private final Icon caixa = carregarIcone("caixa");
     private final Icon chao = carregarIcone("chao");
@@ -86,7 +86,7 @@ public class TelaJogo extends JFrame {
     }
 
     private Icon carregarIcone(String nome) {
-        return Icones.computeIfAbsent(nome, n -> {
+        return IconesPersonagens.computeIfAbsent(nome, n -> {
             ImageIcon original = new ImageIcon(getClass().getResource("/InterfaceGrafica/Imagens/" + n + ".png"));
             Image escalada = original.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
             return new ImageIcon(escalada);
